@@ -1,0 +1,39 @@
+name: CI - Pruebas visuales con Applitools
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧱 Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 📦 Instalar dependencias
+        run: npm install
+
+      - name: 🌐 Instalar Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: 🏗️ Construir la app
+        run: npm run build
+
+      - name: 🚀 Iniciar servidor en segundo plano
+        run: |
+          npm start &
+          sleep 5
+
+      - name: 🤖 Ejecutar pruebas visuales con Applitools
+        env:
+          APPLITOOLS_API_KEY: ${{ secrets.APPLITOOLS_API_KEY }}
+        run: npx playwright test tests/visual.test.js
